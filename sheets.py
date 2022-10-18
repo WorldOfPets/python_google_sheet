@@ -1,8 +1,12 @@
 import requests
 from bs4 import BeautifulSoup as bs
-import re
+import sched, time
+import smtplib
 
-def read():
+from email.mime.text import MIMEText
+s = sched.scheduler(time.time, time.sleep)
+
+def read(sc):
     
     response = requests.get("https://docs.google.com/spreadsheets/d/1ULczcQ1kMnUJlCK5FPK6BJ-Q2whkGoNUnKnzIC9maGU/edit?usp=sharing")
     respon = requests.get("https://docs.google.com/spreadsheets/d/1ULczcQ1kMnUJlCK5FPK6BJ-Q2whkGoNUnKnzIC9maGU/edit?usp=sharing")
@@ -19,8 +23,11 @@ def read():
             csv_data.extend([string for string in strings if string])
     arr_str = ",".join(csv_data)
     arr = arr_str.split(",")
-
     for i in arr:
         if str(i).find("Воз") or str(i).find("исключительно"):
             print(i)
-read()
+    
+    sc.enter(60, 1, read, (sc,))
+
+s.enter(10, 1, read, (s,))
+s.run()
